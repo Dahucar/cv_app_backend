@@ -8,15 +8,12 @@ const {
     deleteResume, 
     showResume, 
     showResumes, 
-    addEducationOnResume
+    addEducationOnResume,
+    editEducationOnResume,
+    deleteEducationOnResume
 } = require('../controllers/Resume.controller');
 
-resumeRouter.post('/add-resume', validateJWT, addResume);
-resumeRouter.delete('/delete-resume/:id', validateJWT, deleteResume);
-resumeRouter.get('/show-resume/:id', validateJWT, showResume);
-resumeRouter.get('/show-resumes', validateJWT, showResumes);
-
-resumeRouter.post('/add-education/:id', [
+const checkParamsEducation = [
     // title validate
     check('title', 'Your resume title is required!').not().isEmpty(),
     check('title', 'Your resume title length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
@@ -33,6 +30,15 @@ resumeRouter.post('/add-education/:id', [
     verifyInputRequest,
     // validate json web token
     validateJWT
-], addEducationOnResume);
+];
+
+resumeRouter.post('/add-resume', validateJWT, addResume);
+resumeRouter.delete('/delete-resume/:id', validateJWT, deleteResume);
+resumeRouter.get('/show-resume/:id', validateJWT, showResume);
+resumeRouter.get('/show-resumes', validateJWT, showResumes);
+
+resumeRouter.post('/add-education/:id', checkParamsEducation, addEducationOnResume);
+resumeRouter.put('/edit-education/:idResume/:idEducation', checkParamsEducation, editEducationOnResume);
+resumeRouter.delete('/delete-education/:idResume/:idEducation', validateJWT, deleteEducationOnResume);
 
 module.exports = resumeRouter;
