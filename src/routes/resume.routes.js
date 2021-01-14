@@ -7,11 +7,15 @@ const {
     addResume, 
     deleteResume, 
     showResume, 
-    showResumes, 
+    showResumes
+} = require('../controllers/Resume.controller');
+
+const {
     addEducationOnResume,
     editEducationOnResume,
-    deleteEducationOnResume
-} = require('../controllers/Resume.controller');
+    deleteEducationOnResume,
+    getAllEducationItems
+} = require('../controllers/Education.controller');
 
 const checkParamsEducation = [
     // title validate
@@ -40,5 +44,6 @@ resumeRouter.get('/show-resumes', validateJWT, showResumes);
 resumeRouter.post('/add-education/:id', checkParamsEducation, addEducationOnResume);
 resumeRouter.put('/edit-education/:idResume/:idEducation', checkParamsEducation, editEducationOnResume);
 resumeRouter.delete('/delete-education/:idResume/:idEducation', validateJWT, deleteEducationOnResume);
+resumeRouter.get('/show-educations/:idResume', validateJWT, getAllEducationItems);
 
 module.exports = resumeRouter;
