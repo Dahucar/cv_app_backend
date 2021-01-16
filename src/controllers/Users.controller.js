@@ -9,12 +9,23 @@ const addUser = async (req = request, res = response) => {
     try {
         //  TODO: verify email and nick with toLowerCase() params.
         const { nick, email, password } = req.body;
-        let user = await UserModel.find({ email: email, nick: nick }).exec();
-        if ( user.length != 0 ) 
+        let user = await UserModel.find({
+            $or: [
+              { 'nick': nick },
+              { 'email': email }
+            ]
+        }).exec();
+        if ( user.length != 0 ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'Remenber. Your email or nick must be unique!'
+                errors : {
+                    emailNick: {
+                        msg: 'Remenber. Your email or nick must be unique!',
+                        param: 'nick and email'
+                    }
+                }
             });
+        }
         user = new UserModel( req.body );
         // created a password encrypted
         const increments = bcrypt.genSaltSync();
@@ -25,10 +36,23 @@ const addUser = async (req = request, res = response) => {
         await userplan.save();
         user.plan = userplan;
         await user.save();
+        // created a new token with JWT
+        const dataPlan = {
+            id: user.plan.id,
+            type: user.plan.type,
+            initDate: user.plan.initDate,
+            expiredDate: user.plan.expiredDate && null
+        }
+        const token = await jwtGenerate( user.id, user.nick, dataPlan );
         // return resonse for user request.
         return res.status(201).json({
             ok: true,
-            user
+            msg: 'Your account is created successfully!',
+            token,
+            user: {
+                uid: user._id,
+                name: user.nick
+            }
         });
     } catch (error) {
         console.error( error );
@@ -60,6 +84,7 @@ const login = async (req = request, res = response) => {
         const dataPlan = {
             id: user.plan.id,
             initDate: user.plan.initDate,
+            type: user.plan.type,
             expiredDate: user.plan.expiredDate && null
         }
         const token = await jwtGenerate( user.id, user.nick, dataPlan );
