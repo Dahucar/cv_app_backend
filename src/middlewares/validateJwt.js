@@ -14,10 +14,9 @@ const validateJWT = (req, res = response, next) => {
 
     // verify token header
     try {
-        const { uid, nick, plan } = jwt.verify( token, process.env.SECRET_JWT_SED );
+        const { uid, name } = jwt.verify( token, process.env.SECRET_JWT_SED );
         req.uid = uid;
-        req.name = nick;
-        req.plan = plan;
+        req.name = name;
     } catch (error) {
         console.log(error);
         return res.status(401).json({

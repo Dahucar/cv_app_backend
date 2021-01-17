@@ -71,14 +71,24 @@ const login = async (req = request, res = response) => {
         if ( !user )
             return res.status(400).json({
                 ok: false,
-                msg: 'Your email is not avaible!'
+                errors : {
+                    email: {
+                        msg: 'Your email is not avaible!',
+                        param: 'email'
+                    }
+                }
             });
         // veriy matched of user password
         const match = bcrypt.compareSync(password, user.password);
         if( !match ) 
             return res.status(400).json({
                 ok: false,
-                msg: 'Your password is not valid!'
+                errors : {
+                    email: {
+                        msg: 'Your password is not valid!',
+                        param: 'password'
+                    }
+                }
             });
         // created a new token with JWT
         const dataPlan = {
@@ -90,6 +100,11 @@ const login = async (req = request, res = response) => {
         const token = await jwtGenerate( user.id, user.nick, dataPlan );
         return res.status(200).json({
             ok: true,
+            msg: 'Welcome back '+user.nick,
+            user : {
+                uid: user._id,
+                name: user.nick,
+            },
             token
         });
     } catch (error) {
@@ -103,12 +118,16 @@ const login = async (req = request, res = response) => {
 
 const renewToken = async (req = request, res = response) => {
     try {
-        // capture request params user.id, user.nick, dataPlan
-        const { uid, nick, plan } = req;
-        const token = await jwtGenerate( uid, nick, plan );
+        // capture request params user.id, user.name
+        const { uid, name } = req;
+        const token = await jwtGenerate( uid, name );
         // create response with new token
         return res.status(200).json({
             ok: true,
+            user: {
+                uid,
+                name
+            },
             token
         });     
     } catch (error) {
