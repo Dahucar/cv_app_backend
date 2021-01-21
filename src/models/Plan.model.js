@@ -12,6 +12,11 @@ const PlanSchema = new Schema({
     expiredDate: {
         type: Date,
         default: undefined
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 }, {
     timestamps: true,

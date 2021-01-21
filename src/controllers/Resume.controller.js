@@ -49,14 +49,17 @@ const addResume = async ( req = request, res = response ) => {
     try {
         // uid of middleware validation
         const { uid } = req;
+        const { title } = req.body;
         // array of educations object
         let resume = new ResumeModel();
         resume.user = uid;
+        resume.title = title;
         await resume.save();
 
         return res.status(201).json({
             ok: true,
             msg: 'Your resume is saved successfully!',
+            resume
         });
     } catch (error) {
         console.error( error );

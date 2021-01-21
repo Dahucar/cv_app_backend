@@ -114,7 +114,15 @@ const checkParamsMoreInfo = [
     validateJWT
 ];
 
-resumeRouter.post('/add-resume', validateJWT, addResume);
+resumeRouter.post('/add-resume', [
+    // validate title on resume
+    check('title', 'Your resume title is required!').not().isEmpty(),
+    check('title', 'Your resume title length must be 4 or 15 characters!').isLength({ min:2, max: 50 }),
+    // show error messages
+    verifyInputRequest,
+    // validate json web token
+    validateJWT
+], addResume);
 resumeRouter.delete('/delete-resume/:id', validateJWT, deleteResume);
 resumeRouter.get('/show-resume/:id', validateJWT, showResume);
 resumeRouter.get('/show-resumes', validateJWT, showResumes);
