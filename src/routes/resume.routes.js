@@ -11,10 +11,11 @@ const {
 } = require('../controllers/Resume.controller');
 
 const {
-    addEducationOnResume,
-    editEducationOnResume,
-    deleteEducationOnResume,
-    getAllEducationItems
+    addEducation,
+    editEducation,
+    deleteEducation,
+    showEducationById,
+    showAllEducations
 } = require('../controllers/Education.controller');
 
 const {
@@ -26,32 +27,34 @@ const {
 } = require('../controllers/Skill.controller');
 
 const {
-    addExpOnResume,
-    editExpOnResume,
-    deleteExpOnResume,
-    showAllExpOfResume
+    addExperience,
+    editExperience,
+    deletetExperience,
+    showExpById,
+    showAllExps
 } = require('../controllers/Experience.controller');
 
 const {
-    addMoreInfoOnResume,
-    editMoreInfoOnResume,
-    deleteMoreInfoOnResume,
-    showAllMoreInfoOnResume
+    addMore,
+    editMore,
+    deleteMore,
+    showOtherById,
+    showAllOtherItems
 } = require('../controllers/MoreInfo.controller');
 
 const checkParamsEducation = [
     // title validate
-    check('title', 'Your resume title is required!').not().isEmpty(),
-    check('title', 'Your resume title length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('educationTitle', 'Your resume title is required!').not().isEmpty(),
+    check('educationTitle', 'Your resume title length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // college validate
-    check('college', 'Your resume college is required!').not().isEmpty(),
-    check('college', 'Your resume college length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('educationCollege', 'Your resume college is required!').not().isEmpty(),
+    check('educationCollege', 'Your resume college length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // title validate
-    check('initDate', 'Your resume initDate is required!').not().isEmpty(),
-    check('initDate', 'Your resume initDate length must be 4 or 15 characters!').isLength({ min:4, max: 10 }),
+    check('educationInitDate', 'Your resume ini tDate is required!').not().isEmpty(),
+    check('educationInitDate', 'Your resume ini Date length must be 4 or 15 characters!').isLength({ min:4, max: 10 }),
     // title validate
-    check('finishDate', 'Your resume finishDate is required!').not().isEmpty(),
-    check('finishDate', 'Your resume finishDate length must be 4 or 15 characters!').isLength({ min:4, max: 10 }),
+    check('educationFinishDate', 'Your resume finish Date is required!').not().isEmpty(),
+    check('educationFinishDate', 'Your resume finish Date length must be 4 or 15 characters!').isLength({ min:4, max: 10 }),
     // show error messages
     verifyInputRequest,
     // validate json web token
@@ -73,20 +76,20 @@ const checkParamsSkill = [
 
 const checkParamsExp = [
     // title validate
-    check('title', 'Your resume title is required!').not().isEmpty(),
-    check('title', 'Your resume title length must be 4 or 15 characters!').isLength({ min:2, max: 20 }),
+    check('expTitle', 'Your resume title is required!').not().isEmpty(),
+    check('expTitle', 'Your resume title length must be 4 or 15 characters!').isLength({ min:2, max: 30 }),
     // description validate
-    check('description', 'Your resume description is required!').not().isEmpty(),
-    check('description', 'Your resume description length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('expDescriptione', 'Your resume description is required!').not().isEmpty(),
+    check('expDescriptione', 'Your resume description length must be 4 or 15 characters!').isLength({ min:4, max: 150 }),
     // contactJob validate
-    check('contactJob', 'Your resume contactJob is required!').not().isEmpty(),
-    check('contactJob', 'Your resume contactJob length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('expContactjob', 'Your resume contact Job is required!').not().isEmpty(),
+    check('expContactjob', 'Your resume contact Job length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // initDate validate
-    check('initDate', 'Your resume initDate is required!').not().isEmpty(),
-    check('initDate', 'Your resume initDate length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('expInitDate', 'Your resume init Date is required!').not().isEmpty(),
+    check('expInitDate', 'Your resume init Date length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // finishDate validate
-    check('finishDate', 'Your resume finishDate is required!').not().isEmpty(),
-    check('finishDate', 'Your resume finishDate length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('expFinishDate', 'Your resume finish Date is required!').not().isEmpty(),
+    check('expFinishDate', 'Your resume finish Date length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // show error messages
     verifyInputRequest,
     // validate json web token
@@ -95,20 +98,20 @@ const checkParamsExp = [
 
 const checkParamsMoreInfo = [
     // titleItem validate
-    check('titleItem', 'Your resume titleItem is required!').not().isEmpty(),
-    check('titleItem', 'Your resume titleItem length must be 4 or 15 characters!').isLength({ min:2, max: 50 }),
+    check('otherTitle', 'Your resume title Item is required!').not().isEmpty(),
+    check('otherTitle', 'Your resume title Item length must be 4 or 15 characters!').isLength({ min:2, max: 50 }),
     // titleActivity validate
-    check('titleActivity', 'Your resume titleActivity is required!').not().isEmpty(),
-    check('titleActivity', 'Your resume titleActivity length must be 4 or 15 characters!').isLength({ min:4, max: 70 }),
+    check('otherTitleAct', 'Your resume title Activity is required!').not().isEmpty(),
+    check('otherTitleAct', 'Your resume title Activity length must be 4 or 15 characters!').isLength({ min:4, max: 70 }),
     // description validate
-    check('description', 'Your resume description is required!').not().isEmpty(),
-    check('description', 'Your resume description length must be 4 or 15 characters!').isLength({ min:4, max: 250 }),
+    check('otherDescrip', 'Your resume description is required!').not().isEmpty(),
+    check('otherDescrip', 'Your resume description length must be 4 or 15 characters!').isLength({ min:4, max: 250 }),
     // initDate validate
-    check('initDate', 'Your resume initDate is required!').not().isEmpty(),
-    check('initDate', 'Your resume initDate length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('otherInitDate', 'Your resume init Date is required!').not().isEmpty(),
+    check('otherInitDate', 'Your resume init Date length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // finishDate validate
-    check('finishDate', 'Your resume finishDate is required!').not().isEmpty(),
-    check('finishDate', 'Your resume finishDate length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('otherFinishDate', 'Your resume finish Date is required!').not().isEmpty(),
+    check('otherFinishDate', 'Your resume finish Date length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // show error messages
     verifyInputRequest,
     // validate json web token
@@ -129,10 +132,11 @@ resumeRouter.get('/show-resume/:id', validateJWT, showResume);
 resumeRouter.get('/show-resumes', validateJWT, showResumes);
 
 // Education routes
-resumeRouter.post('/add-education/:id', checkParamsEducation, addEducationOnResume);
-resumeRouter.put('/edit-education/:idResume/:idEducation', checkParamsEducation, editEducationOnResume);
-resumeRouter.delete('/delete-education/:idResume/:idEducation', validateJWT, deleteEducationOnResume);
-resumeRouter.get('/show-educations/:idResume', validateJWT, getAllEducationItems);
+resumeRouter.post('/add-education', checkParamsEducation, addEducation);
+resumeRouter.put('/edit-education/:idEducation', checkParamsEducation, editEducation);
+resumeRouter.delete('/delete-education/:idEducation', validateJWT, deleteEducation);
+resumeRouter.get('/show-education/:idEducation', validateJWT, showEducationById);
+resumeRouter.get('/show-all-educs', validateJWT, showAllEducations);
 
 // Skill routes
 resumeRouter.post('/add-skill', checkParamsSkill, addSkill);
@@ -142,15 +146,17 @@ resumeRouter.get('/show-skill/:idSkill', validateJWT, showSkillById);
 resumeRouter.get('/show-all-skills', validateJWT, showAllSkills);
 
 // Exp routes
-resumeRouter.post('/add-exp/:id', checkParamsExp, addExpOnResume);
-resumeRouter.put('/edit-exp/:idResume/:idExp', checkParamsExp, editExpOnResume);
-resumeRouter.delete('/delete-exp/:idResume/:idExp', validateJWT, deleteExpOnResume);
-resumeRouter.get('/show-exp/:idResume', validateJWT, showAllExpOfResume);
+resumeRouter.post('/add-exp', checkParamsExp, addExperience);
+resumeRouter.put('/edit-exp/:idExp', checkParamsExp, editExperience);
+resumeRouter.delete('/delete-exp/:idExp', validateJWT, deletetExperience);
+resumeRouter.get('/show-exp/:idExp', validateJWT, showExpById);
+resumeRouter.get('/show-all-exps', validateJWT, showAllExps);
 
 // More info routes
-resumeRouter.post('/add-moreInfo/:id', checkParamsMoreInfo, addMoreInfoOnResume);
-resumeRouter.put('/edit-moreInfo/:idResume/:idMore', checkParamsMoreInfo, editMoreInfoOnResume);
-resumeRouter.delete('/delete-moreInfo/:idResume/:idMore', validateJWT, deleteMoreInfoOnResume);
-resumeRouter.get('/show-moreInfo/:idResume', validateJWT, showAllMoreInfoOnResume);
+resumeRouter.post('/add-moreInfo', checkParamsMoreInfo, addMore);
+resumeRouter.put('/edit-moreInfo/:idMore', checkParamsMoreInfo, editMore);
+resumeRouter.delete('/delete-moreInfo/:idMore', validateJWT, deleteMore);
+resumeRouter.get('/show-other/:idMore', validateJWT, showOtherById);
+resumeRouter.get('/show-all-others', validateJWT, showAllOtherItems);
 
 module.exports = resumeRouter;

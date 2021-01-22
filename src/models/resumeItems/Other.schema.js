@@ -1,27 +1,27 @@
 const { Schema, model } = require('mongoose');
 const OtherSchema = new Schema({
-    titleItem: {
+    otherTitle: {
         type: String,
         required: true
     },
-    titleActivity: {
+    otherTitleAct: {
         type: String,
         required: true
     },
-    description: {
+    otherDescrip: {
         type: String,
         required: false,
-        default: undefined
+        default: ''
     },
-    initDate: {
+    otherInitDate: {
         type: Date,
         required: false,
-        default: undefined
+        default: ''
     },
-    finishDate: {
+    otherFinishDate: {
         type: Date,
         required: false,
-        default: undefined
+        default: ''
     },
     user: {
         type: Schema.Types.ObjectId,

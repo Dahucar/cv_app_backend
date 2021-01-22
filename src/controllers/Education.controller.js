@@ -1,29 +1,13 @@
 const { request, response } = require("express");
-const ResumeModel = require("../models/Resume.model");
+const EducationSchema = require("../models/resumeItems/Education.schema");
 const msgErrorRequest = 'Internal server error with your request!';
 
-const addEducationOnResume = async ( req = request, res = response ) => {
+const addEducation = async ( req = request, res = response ) => {
     try {
-        const { uid } = req;
-        const idResume = req.params.id;
-        const { title, college, initDate,finishDate } = req.body;
-        // verify if exits a resume with the idResume
-        let resume = await ResumeModel.findById( idResume );
-        if( !resume ){
-            return res.status(400).json({
-                ok: false,
-                msg: 'That resume dont exist!'
-            });
-        }
-        if( resume.user.toString() !== uid ){
-            return res.status(400).json({
-                ok: false,
-                msg: 'This resume is not yours!'
-            });
-        }
-        const educationItem = { title, college, initDate, finishDate }
-        resume.education.push( educationItem );
-        await resume.save();
+        const uid = req.uid;
+        let eduSchema = new EducationSchema({ ...req.body, user: uid });
+        // education saved 
+        await eduSchema.save();
         return res.status(200).json({
             ok: true,
             msg: 'Education saved successfully!'
@@ -37,26 +21,26 @@ const addEducationOnResume = async ( req = request, res = response ) => {
     }
 }
 
-const editEducationOnResume = async (req = request, res = response) => {
+const editEducation = async (req = request, res = response) => {
     try {
         const { uid } = req;
-        const { idResume, idEducation } = req.params;
-        const commentParams = req.body;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idEducation } = req.params;
+        const educationParams = req.body;
+        let education = await EducationSchema.findById( idEducation );
+        if ( !education ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That education dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( education.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This education is not yours!'
             });
         }
-        // updated comment params
-        await ResumeModel.findOneAndUpdate({ 'education._id': idEducation }, { '$set': { 'education.$': commentParams } }, { new: true });
+        // updated skill params
+        await EducationSchema.findOneAndUpdate({ _id: idEducation }, { ...educationParams });
         return res.status(200).json({
             ok: true,
             msg: 'Your education item is saved successfully!'
@@ -70,32 +54,36 @@ const editEducationOnResume = async (req = request, res = response) => {
     }
 }
 
-const deleteEducationOnResume = async (req = request, res = response) => {
+const deleteEducation = async (req = request, res = response) => {
     try {
         const { uid } = req;
-        const { idResume, idEducation } = req.params;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idEducation } = req.params;
+        let education = await EducationSchema.findById( idEducation );
+        if ( !education ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That education dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( education.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This education is not yours!'
             });
         }
         // deleted education 
-        let education = resume.education.id( idEducation );
-        if( education ){
-            education.remove();
-        }
-        await resume.save();
-        return res.status(200).json({
-            ok: true,
-            msg: 'Your education item is deleted successfully!'
+        EducationSchema.findByIdAndDelete( idEducation, ( error ) => {
+            if ( error ) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Unexpected error in your request!'
+                });
+            } else {
+                return res.status(200).json({
+                    ok: true,
+                    msg: 'Your education is deleted successfully!'
+                });
+            } 
         });
     } catch (error) {
         console.error( error );
@@ -106,24 +94,46 @@ const deleteEducationOnResume = async (req = request, res = response) => {
     }
 }
 
-const getAllEducationItems = async (req = request, res = response) => {
+const showEducationById = async (req = request, res = response) => {
     try {
         const { uid } = req;
-        const { idResume } = req.params;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idEducation } = req.params;
+        let education = await EducationSchema.findById(idEducation);
+        if ( !education ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That education dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( education.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This education is not yours!'
+            });
+        } 
+        return res.status(200).json({
+            ok: true,
+            education
+        });
+    } catch (error) {
+        console.error( error );
+        return res.status(500).json({
+            ok: false,
+            msg: msgErrorRequest
+        });
+    }
+}
+
+const showAllEducations = async ( req = request, res = response ) => {
+    try {
+        const { uid } = req;
+        let educations = await EducationSchema.find({ user: uid});
+        if ( !educations ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'You dont have educations saved!'
             });
         }
-        const educations = resume.education;
         return res.status(200).json({
             ok: true,
             educations
@@ -138,8 +148,9 @@ const getAllEducationItems = async (req = request, res = response) => {
 }
 
 module.exports = {
-    addEducationOnResume,
-    editEducationOnResume,
-    deleteEducationOnResume,
-    getAllEducationItems
+    addEducation,
+    editEducation,
+    deleteEducation,
+    showEducationById,
+    showAllEducations
 }

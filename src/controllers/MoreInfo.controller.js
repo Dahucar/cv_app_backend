@@ -1,39 +1,16 @@
 const { response, request } = require("express");
-const ResumeModel = require("../models/Resume.model");
+const OtherSchema = require("../models/resumeItems/Other.schema");
 const msgErrorRequest = 'Internal server error with your request!';
-/*
-{
-    "titleItem": "Certification",
-    "titleActivity": "Certificacion on Java SE",
-    "description": "Proceso de certificación en JavaSE por parte de Oracle",
-    "initDate": "2019-02-05",
-    "finishDate": "2019-02-11"
-}
-*/
-const addMoreInfoOnResume = async (req = request, res = response) => {
+
+const addMore = async (req = request, res = response) => {
     try {
         const uid = req.uid;
-        const idResume = req.params.id;
-        const { titleItem, titleActivity, description, initDate, finishDate } = req.body;
-        let resume = await ResumeModel.findById( idResume );
-        if( !resume ){
-            return res.status(400).json({
-                ok: false,
-                msg: 'That resume dont exist!'
-            });
-        }
-        if( resume.user.toString() !== uid ){
-            return res.status(400).json({
-                ok: false,
-                msg: 'This resume is not yours!'
-            });
-        }
-        // moreInformation saved 
-        resume.moreInformation.push( { titleItem, titleActivity, description, initDate, finishDate } );
-        await resume.save();
+        let otherModel = new OtherSchema({ ...req.body, user: uid });
+        // skill saved 
+        await otherModel.save();
         return res.status(200).json({
             ok: true,
-            msg: 'More information saved successfully!'
+            msg: 'Other item saved successfully!'
         });
     } catch (error) {
         console.error( error );
@@ -43,29 +20,29 @@ const addMoreInfoOnResume = async (req = request, res = response) => {
         });
     }
 }
-const editMoreInfoOnResume = async (req = request, res = response) => {
+const editMore = async (req = request, res = response) => {
     try {
         const { uid } = req;
-        const { idResume, idMore } = req.params;
-        const moreInfoParams = req.body;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idMore } = req.params;
+        const otherParams = req.body;
+        let other = await OtherSchema.findById( idMore );
+        if ( !other ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That item dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( other.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This item is not yours!'
             });
         }
         // updated skill params
-        await ResumeModel.findOneAndUpdate({ 'moreInformation._id': idMore }, { '$set': { 'moreInformation.$': moreInfoParams } }, { new: true });
+        await OtherSchema.findOneAndUpdate({ _id: idMore }, { ...otherParams });
         return res.status(200).json({
             ok: true,
-            msg: 'Your More information item is saved successfully!'
+            msg: 'Your other item is saved successfully!'
         });
     } catch (error) {
         console.error( error );
@@ -75,32 +52,36 @@ const editMoreInfoOnResume = async (req = request, res = response) => {
         });
     }
 }
-const deleteMoreInfoOnResume = async (req = request, res = response) => {
+const deleteMore = async (req = request, res = response) => {
     try {
         const { uid } = req;
-        const { idResume, idMore } = req.params;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idMore } = req.params;
+        let other = await OtherSchema.findById( idMore );
+        if ( !other ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That other item dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( other.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This other item is not yours!'
             });
         }
         // deleted skill 
-        let moreInfo = resume.moreInformation.id( idMore );
-        if( moreInfo ){
-            moreInfo.remove();
-        }
-        await resume.save();
-        return res.status(200).json({
-            ok: true,
-            msg: 'Your More information item is deleted successfully!'
+        OtherSchema.findByIdAndDelete( idMore, ( error ) => {
+            if ( error ) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Unexpected error in your request!'
+                });
+            } else {
+                return res.status(200).json({
+                    ok: true,
+                    msg: 'Your other item is deleted successfully!'
+                });
+            } 
         });
     } catch (error) {
         console.error( error );
@@ -110,27 +91,26 @@ const deleteMoreInfoOnResume = async (req = request, res = response) => {
         });
     }
 }
-const showAllMoreInfoOnResume = async (req = request, res = response) => {
+const showOtherById = async (req = request, res = response) => {
     try {
         const { uid } = req;
-        const { idResume } = req.params;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idMore } = req.params;
+        let other = await OtherSchema.findById(idMore);
+        if ( !other ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That other item dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( other.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This other item is not yours!'
             });
-        }
-        const moreInformations = resume.moreInformation;
+        } 
         return res.status(200).json({
             ok: true,
-            moreInformations
+            other
         });
     } catch (error) {
         console.error( error );
@@ -141,9 +121,33 @@ const showAllMoreInfoOnResume = async (req = request, res = response) => {
     }
 }
 
+const showAllOtherItems = async ( req = request, res = response ) => {
+    try {
+        const { uid } = req;
+        let others = await OtherSchema.find({ user: uid});
+        if ( !others ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'You dont have other items saved!'
+            });
+        }
+        return res.status(200).json({
+            ok: true,
+            others
+        });
+    } catch (error) {
+        console.error( error );
+        return res.status(500).json({
+            ok: false,
+            msg: msgErrorRequest
+        });
+    }
+}
+
 module.exports = {
-    addMoreInfoOnResume,
-    editMoreInfoOnResume,
-    deleteMoreInfoOnResume,
-    showAllMoreInfoOnResume
+    addMore,
+    editMore,
+    deleteMore,
+    showOtherById,
+    showAllOtherItems
 }

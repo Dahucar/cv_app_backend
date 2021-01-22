@@ -1,18 +1,18 @@
 const { Schema, model } = require('mongoose');
 const EducationSchema = new Schema({
-    title: {
+    educationTitle: {
         type: String,
         required: true
     },
-    college: {
+    educationCollege: {
         type: String,
         required: true
     },
-    initDate: {
+    educationInitDate: {
         type: Date,
         required: true
     },
-    finishDate: {
+    educationFinishDate: {
         type: Date,
         required: true
     },

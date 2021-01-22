@@ -1,5 +1,4 @@
 const { request, response } = require("express");
-const ResumeModel = require("../models/Resume.model");
 const SkillSchema = require("../models/resumeItems/Skill.schema");
 const msgErrorRequest = 'Internal server error with your request!';
 

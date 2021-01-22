@@ -1,22 +1,23 @@
 const { Schema, model } = require('mongoose');
 const ExperienceSchema = new Schema({
-    title: {
+    expTitle: {
         type: String,
         required: true
     },
-    description: {
+    expDescriptione: {
         type: String,
         required: true
     },
-    contactJob: {
+    expContactjob: {
         type: String,
-        require: false
+        require: false,
+        default: ''
     },
-    initDate: {
+    expInitDate: {
         type: Date,
         required: true
     },
-    finishDate: {
+    expFinishDate: {
         type: Date,
         required: true
     },

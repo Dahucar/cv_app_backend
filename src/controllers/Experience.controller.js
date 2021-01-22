@@ -1,28 +1,13 @@
-const { request, response } = require("express");
-const ResumeModel = require("../models/Resume.model");
+const { request, response } = require("express"); 
+const ExperienceSchema = require("../models/resumeItems/Experience.schema");
 const msgErrorRequest = 'Internal server error with your request!';
 
-const addExpOnResume = async ( req = request, res = response ) => {
+const addExperience = async ( req = request, res = response ) => {
     try {
         const uid = req.uid;
-        const idResume = req.params.id;
-        const { title, description, contactJob, initDate, finishDate } = req.body;
-        let resume = await ResumeModel.findById( idResume );
-        if( !resume ){
-            return res.status(400).json({
-                ok: false,
-                msg: 'That resume dont exist!'
-            });
-        }
-        if( resume.user.toString() !== uid ){
-            return res.status(400).json({
-                ok: false,
-                msg: 'This resume is not yours!'
-            });
-        }
+        let expSchema = new ExperienceSchema({ ...req.body, user: uid });
         // Exp saved 
-        resume.experience.push( { title, description, contactJob, initDate, finishDate } );
-        await resume.save();
+        await expSchema.save();
         return res.status(200).json({
             ok: true,
             msg: 'Experience saved successfully!'
@@ -36,29 +21,29 @@ const addExpOnResume = async ( req = request, res = response ) => {
     }
 }
 
-const editExpOnResume = async ( req = request, res = response ) => {
+const editExperience = async ( req = request, res = response ) => {
     try {
         const { uid } = req;
-        const { idResume, idExp } = req.params;
+        const { idExp } = req.params;
         const expParams = req.body;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        let experience = await ExperienceSchema.findById( idExp );
+        if ( !experience ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That experience dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( experience.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This experience is not yours!'
             });
         }
         // updated skill params
-        await ResumeModel.findOneAndUpdate({ 'experience._id': idExp }, { '$set': { 'experience.$': expParams } }, { new: true });
+        await ExperienceSchema.findOneAndUpdate({ _id: idExp }, { ...expParams });
         return res.status(200).json({
             ok: true,
-            msg: 'Your experience item is saved successfully!'
+            msg: 'Your experience item is updated successfully!'
         });
     } catch (error) {
         console.error( error );
@@ -69,32 +54,36 @@ const editExpOnResume = async ( req = request, res = response ) => {
     }
 }
 
-const deleteExpOnResume = async ( req = request, res = response ) => {
+const deletetExperience = async ( req = request, res = response ) => {
     try {
         const { uid } = req;
-        const { idResume, idExp } = req.params;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idExp } = req.params;
+        let experience = await ExperienceSchema.findById( idExp );
+        if ( !experience ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That experience dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( experience.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This experience is not yours!'
             });
         }
-        // deleted skill 
-        let experience = resume.experience.id( idExp );
-        if( experience ){
-            experience.remove();
-        }
-        await resume.save();
-        return res.status(200).json({
-            ok: true,
-            msg: 'Your experience item is deleted successfully!'
+        // deleted experience 
+        ExperienceSchema.findByIdAndDelete( idExp, ( error ) => {
+            if ( error ) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Unexpected error in your request!'
+                });
+            } else {
+                return res.status(200).json({
+                    ok: true,
+                    msg: 'Your experience is deleted successfully!'
+                });
+            } 
         });
     } catch (error) {
         console.error( error );
@@ -105,24 +94,46 @@ const deleteExpOnResume = async ( req = request, res = response ) => {
     }
 }
 
-const showAllExpOfResume = async ( req = request, res = response ) => {
+const showExpById = async ( req = request, res = response ) => {
     try {
         const { uid } = req;
-        const { idResume } = req.params;
-        let resume = await ResumeModel.findById( idResume );
-        if ( !resume ) {
+        const { idExp } = req.params;
+        let experience = await ExperienceSchema.findById(idExp);
+        if ( !experience ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'That resume dont exist!'
+                msg: 'That experience dont exist!'
             });
         }
-        if( resume.user.toString() !== uid ){
+        if( experience.user.toString() !== uid ){
             return res.status(400).json({
                 ok: false,
-                msg: 'This resume is not yours!'
+                msg: 'This experience is not yours!'
+            });
+        } 
+        return res.status(200).json({
+            ok: true,
+            experience
+        });
+    } catch (error) {
+        console.error( error );
+        return res.status(500).json({
+            ok: false,
+            msg: msgErrorRequest 
+        });
+    }
+}
+
+const showAllExps = async ( req = request, res = response ) => {
+    try {
+        const { uid } = req;
+        let experiences = await ExperienceSchema.find({ user: uid});
+        if ( !experiences ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'You dont have experiences saved!'
             });
         }
-        const experiences = resume.experience;
         return res.status(200).json({
             ok: true,
             experiences
@@ -131,14 +142,15 @@ const showAllExpOfResume = async ( req = request, res = response ) => {
         console.error( error );
         return res.status(500).json({
             ok: false,
-            msg: msgErrorRequest 
+            msg: msgErrorRequest
         });
     }
 }
 
 module.exports = {
-    addExpOnResume,
-    editExpOnResume,
-    deleteExpOnResume,
-    showAllExpOfResume
+    addExperience,
+    editExperience,
+    deletetExperience,
+    showExpById,
+    showAllExps
 }
