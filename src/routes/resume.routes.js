@@ -18,10 +18,11 @@ const {
 } = require('../controllers/Education.controller');
 
 const {
-    addSkillOnResume,
-    editSkillOnResume,
-    deleteSkillOnResume,
-    showSkillsOfResume
+    addSkill,
+    editSkill,
+    deleteSkill,
+    showSkillById,
+    showAllSkills
 } = require('../controllers/Skill.controller');
 
 const {
@@ -59,11 +60,11 @@ const checkParamsEducation = [
 
 const checkParamsSkill = [
     // name validate
-    check('name', 'Your resume name is required!').not().isEmpty(),
-    check('name', 'Your resume name length must be 4 or 15 characters!').isLength({ min:2, max: 20 }),
+    check('skillName', 'Your resume name is required!').not().isEmpty(),
+    check('skillExperience', 'Your resume name length must be 4 or 15 characters!').isLength({ min:2, max: 20 }),
     // experience validate
-    check('experience', 'Your resume experience is required!').not().isEmpty(),
-    check('experience', 'Your resume experience length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('skillName', 'Your resume experience is required!').not().isEmpty(),
+    check('skillExperience', 'Your resume experience length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
     // show error messages
     verifyInputRequest,
     // validate json web token
@@ -134,10 +135,11 @@ resumeRouter.delete('/delete-education/:idResume/:idEducation', validateJWT, del
 resumeRouter.get('/show-educations/:idResume', validateJWT, getAllEducationItems);
 
 // Skill routes
-resumeRouter.post('/add-skill/:id', checkParamsSkill, addSkillOnResume);
-resumeRouter.put('/edit-skill/:idResume/:idSkill', checkParamsSkill, editSkillOnResume);
-resumeRouter.delete('/delete-skill/:idResume/:idSkill', validateJWT, deleteSkillOnResume);
-resumeRouter.get('/show-skills/:idResume', validateJWT, showSkillsOfResume);
+resumeRouter.post('/add-skill', checkParamsSkill, addSkill);
+resumeRouter.put('/edit-skill/:idSkill', checkParamsSkill, editSkill);
+resumeRouter.delete('/delete-skill/:idSkill', validateJWT, deleteSkill);
+resumeRouter.get('/show-skill/:idSkill', validateJWT, showSkillById);
+resumeRouter.get('/show-all-skills', validateJWT, showAllSkills);
 
 // Exp routes
 resumeRouter.post('/add-exp/:id', checkParamsExp, addExpOnResume);

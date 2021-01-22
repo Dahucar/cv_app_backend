@@ -1,4 +1,29 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model } = require('mongoose'); 
+
+const ResumeSchema = new Schema({
+    image:  {
+        type: String
+    },
+    title: {
+        type: String
+    },
+    education: [{ type: Schema.Types.ObjectId, ref: 'Education' }],
+    skills: [{ type: Schema.Types.ObjectId, ref: 'Skill' }],
+    experience: [{ type: Schema.Types.ObjectId, ref: 'Experience' }],
+    moreInformation: [{ type: Schema.Types.ObjectId, ref: 'Other' }],
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
+}, {
+    timestamps: true,
+    versionKey: false
+});
+
+module.exports = model('Resume', ResumeSchema);
+
+/*
 
 const EducationSchema = new Schema({
     title: {
@@ -78,26 +103,4 @@ const OtherActivitySchema = new Schema({
         default: undefined
     }
 }, { versionKey: false });
-
-const ResumeSchema = new Schema({
-    image:  {
-        type: String
-    },
-    title: {
-        type: String
-    },
-    education: [ EducationSchema ],
-    skills: [ SkillSchema ],
-    experience: [ ExperienceSchema ],
-    moreInformation: [ OtherActivitySchema ],
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }
-}, {
-    timestamps: true,
-    versionKey: false
-});
-
-module.exports = model('Resume', ResumeSchema);
+*/
