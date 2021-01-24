@@ -63,11 +63,11 @@ const checkParamsEducation = [
 
 const checkParamsSkill = [
     // name validate
-    check('skillName', 'Your resume name is required!').not().isEmpty(),
-    check('skillExperience', 'Your resume name length must be 4 or 15 characters!').isLength({ min:2, max: 20 }),
+    check('skillName', 'Your skill name is required!').not().isEmpty(),
+    check('skillName', 'Your skill name length must be 2 or 20 characters!').isLength({ min:2, max: 20 }),
     // experience validate
-    check('skillName', 'Your resume experience is required!').not().isEmpty(),
-    check('skillExperience', 'Your resume experience length must be 4 or 15 characters!').isLength({ min:4, max: 30 }),
+    check('skillExperience', 'Your skill experience is required!').not().isEmpty(),
+    check('skillExperience', 'Your skill experience length must be 4 or 30 characters!').isLength({ min:4, max: 30 }),
     // show error messages
     verifyInputRequest,
     // validate json web token

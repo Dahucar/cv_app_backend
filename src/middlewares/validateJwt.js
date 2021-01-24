@@ -21,7 +21,7 @@ const validateJWT = (req, res = response, next) => {
         console.log(error);
         return res.status(401).json({
             ok: false,
-            msg: 'Error with your token created!'
+            msg: 'Error. Your session has expired!'
         });
     }
 
